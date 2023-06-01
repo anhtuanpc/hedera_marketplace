@@ -24,18 +24,17 @@ describe("TEST TOKEN SMART CONTRACT", () => {
   let tokenAddress;
   const TOKEN_NAME = "TestTOKEN";
   const TOKEN_SYMBOL = "TK";
-  const INITIAL_SUPPLY = new BigNumber(1000);
-  const DECIMAL = 8;
+  const INITIAL_SUPPLY = new BigNumber(500000000000000);
+  const DECIMAL = 2;
   const AUTO_RENEWABLE = new BigNumber(8000000);
   const deployerAddress = idToEvmAddress(config.ACCOUNTS.DEPLOYER.ID);
   const userAddress = idToEvmAddress(config.ACCOUNTS.USER.ID);
-  // const deployParams = new ContractFunctionParameters()
-  //   .addString(TOKEN_NAME)
-  //   .addString(TOKEN_SYMBOL)
-  //   .addInt64(INITIAL_SUPPLY)
-  //   .addInt32(DECIMAL)
-  //   .addInt64(AUTO_RENEWABLE);
-  const deployParams = new ContractFunctionParameters();
+  const deployParams = new ContractFunctionParameters()
+    .addString(TOKEN_NAME)
+    .addString(TOKEN_SYMBOL)
+    .addInt64(INITIAL_SUPPLY)
+    .addInt32(DECIMAL)
+    .addInt64(AUTO_RENEWABLE);
 
   beforeEach(() => {
     deployClient = createClient(
@@ -53,7 +52,7 @@ describe("TEST TOKEN SMART CONTRACT", () => {
     const { receipt, record } = await callContractWithRecord(
       SmartContractID.RLF_REAL,
       txConfigure.MAX_GAS,
-      "createFungibleTokenPublic",
+      "createFungible",
       deployParams,
       deployClient
     );
@@ -67,6 +66,25 @@ describe("TEST TOKEN SMART CONTRACT", () => {
   it("associateToken() success", async () => {
     await associate(tokenAddress, deployClient);
     await associate(tokenAddress, userClient);
+  });
+
+  it("mint token successfully", async () => {
+    const AMOUNT = new BigNumber(100000000000);
+
+    const mintParams = new ContractFunctionParameters()
+      .addAddress(deployerAddress)
+      .addInt64(AMOUNT);
+
+    const callReceipt = await callContract(
+      SmartContractID.RLF_REAL,
+      txConfigure.MAX_GAS,
+      "mint",
+      mintParams,
+      deployClient
+    );
+
+    const status = callReceipt.status.toString();
+    expect(status).to.equal("SUCCESS");
   });
 
   it("transferFrom() success", async () => {

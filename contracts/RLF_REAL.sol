@@ -22,26 +22,27 @@ contract RLF_REAL is HederaTokenService, ExpiryHelper, KeyHelper {
         _;
     }
 
-    string name = "TestTOKEN";
-    string symbol = "TK";
     string memo = "memo";
-    int64 initialTotalSupply = 5000000000000;
     int64 maxSupply = 5000000000000;
-    int32 decimals = 2;
     bool freezeDefaultStatus = false;
 
     function createFungible(
+        string calldata name, 
+        string calldata symbol, 
+        int64 initialTotalSupply, 
+        int32 decimals, 
+        int64 autoRenewable
     ) public payable onlyOwner(msg.sender) returns (address) {
         IHederaTokenService.TokenKey[] memory keys = new IHederaTokenService.TokenKey[](2);
         keys[0] = getSingleKey(KeyType.SUPPLY, KeyValueType.CONTRACT_ID, address(this));
         keys[1] = getSingleKey(KeyType.PAUSE, KeyValueType.CONTRACT_ID, address(this));
 
         IHederaTokenService.Expiry memory expiry = IHederaTokenService.Expiry(
-            0, address(this), 8000000
+            0, address(this), autoRenewable
         );
 
         IHederaTokenService.HederaToken memory token = IHederaTokenService.HederaToken(
-            name, symbol, address(this), memo, false, maxSupply, freezeDefaultStatus, keys, expiry
+            name, symbol, address(this), memo, false, 0, freezeDefaultStatus, keys, expiry
         );
 
         (int responseCode, address tokenAddress) =

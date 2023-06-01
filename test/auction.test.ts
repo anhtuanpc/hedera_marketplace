@@ -7,6 +7,9 @@ import { HederaConfig as config } from "./../src/config";
 const txConfigure = config.TRANSACTION_CONFIGURES;
 import BigNumber from "bignumber.js";
 import {
+  approveNFT,
+  approveToken,
+  associate,
   callContract,
   callContractWithRecord,
   convertToUint8,
@@ -37,13 +40,11 @@ describe("TEST AUCTION SMART CONTRACT", async () => {
     .addString(TOKEN_SYMBOL)
     .addInt64(INITIAL_SUPPLY)
     .addInt32(DECIMAL)
-    .addInt64(AUTO_RENEWABLE)
-    .addAddress(deployerAddress);
+    .addInt64(AUTO_RENEWABLE);
   const deployNFTParams = new ContractFunctionParameters()
     .addString(NFT_NAME)
     .addString(NFT_SYMBOL)
-    .addInt64(AUTO_RENEWABLE)
-    .addAddress(deployerAddress);
+    .addInt64(AUTO_RENEWABLE);
 
   beforeEach(async () => {
     deployClient = createClient(
@@ -69,9 +70,9 @@ describe("TEST AUCTION SMART CONTRACT", async () => {
   it("Deploy all token and nft success, mint demo NFT", async () => {
     const serialNFT = new BigNumber(1);
     const metadata = "ipfs://test";
-    const mintParams = new ContractFunctionParameters().addBytesArray([
-      convertToUint8(metadata),
-    ]);
+    const mintParams = new ContractFunctionParameters()
+      .addAddress(deployerAddress)
+      .addBytesArray([convertToUint8(metadata)]);
 
     // create NFT
     const deployNFT = await callContractWithRecord(
@@ -83,6 +84,10 @@ describe("TEST AUCTION SMART CONTRACT", async () => {
     );
 
     nftAddress = deployNFT.record.contractFunctionResult.getAddress(0);
+
+    // associate NFT
+    await associate(nftAddress, deployClient);
+    await associate(nftAddress, userClient);
 
     // mint NFT
     await callContract(
@@ -101,32 +106,28 @@ describe("TEST AUCTION SMART CONTRACT", async () => {
       deployTokenParams,
       deployClient
     );
+    tokenAddress = deployToken.record.contractFunctionResult.getAddress(0);
 
-    // Associate nft and token for user
-    const associateUserToken = new ContractExecuteTransaction()
-      .setContractId(SmartContractID.RLF_REAL)
-      .setGas(txConfigure.MAX_GAS)
-      .setFunction("associateToken");
-    const TokenContractExecuteSubmit = await associateUserToken.execute(
-      userClient
-    );
-    await TokenContractExecuteSubmit.getReceipt(userClient);
-    console.log(
-      `Associate Token for test account at tx ${TokenContractExecuteSubmit.transactionId}`
-    );
+    // associate Token
+    await associate(tokenAddress, deployClient);
+    await associate(tokenAddress, userClient);
 
-    const associateUserNFT = new ContractExecuteTransaction()
-      .setContractId(SmartContractID.RLF_NFT)
-      .setGas(txConfigure.MAX_GAS)
-      .setFunction("associateNFT");
-    const NFTContractExecuteSubmit = await associateUserNFT.execute(userClient);
-    await NFTContractExecuteSubmit.getReceipt(userClient);
-    console.log(
-      `Associate NFT for test account at tx ${NFTContractExecuteSubmit.transactionId}`
+    // Mint Token
+    const mintTokenParams = new ContractFunctionParameters()
+      .addAddress(deployerAddress)
+      .addInt64(INITIAL_SUPPLY);
+
+    const callReceipt = await callContract(
+      SmartContractID.RLF_REAL,
+      txConfigure.MAX_GAS,
+      "mint",
+      mintTokenParams,
+      deployClient
     );
 
     tokenAddress = deployToken.record.contractFunctionResult.getAddress(0);
 
+    // associate nft and token for marketplace
     const associateNFTParams = new ContractFunctionParameters().addAddress(
       nftAddress
     );
@@ -134,7 +135,6 @@ describe("TEST AUCTION SMART CONTRACT", async () => {
       tokenAddress
     );
 
-    // associate nft and token for marketplace
     await callContract(
       SmartContractID.RLF_AUCTION,
       txConfigure.MAX_GAS,
@@ -157,6 +157,14 @@ describe("TEST AUCTION SMART CONTRACT", async () => {
       .addAddress(deployerAddress)
       .addAddress(userAddress)
       .addInt64(AMOUNT);
+
+    await approveToken(
+      tokenAddress,
+      config.ACCOUNTS.DEPLOYER.ID,
+      SmartContractID.RLF_REAL,
+      AMOUNT.toNumber(),
+      deployClient
+    );
 
     await callContract(
       SmartContractID.RLF_REAL,
@@ -182,6 +190,14 @@ describe("TEST AUCTION SMART CONTRACT", async () => {
       .addInt64(startTime)
       .addInt64(startTime.plus(1));
 
+    await approveNFT(
+      nftAddress,
+      serialNFT.toNumber(),
+      config.ACCOUNTS.DEPLOYER.ID,
+      SmartContractID.RLF_AUCTION,
+      deployClient
+    );
+
     const callReceipt = await callContract(
       SmartContractID.RLF_AUCTION,
       txConfigure.MAX_GAS,
@@ -198,12 +214,6 @@ describe("TEST AUCTION SMART CONTRACT", async () => {
     const startPrice = new BigNumber(2000000);
     const ceilingPrice = new BigNumber(2000000);
     const minBid = new BigNumber(1000000);
-    console.log(`start time ${startTime}`);
-    console.log(`end time: ${endTime}`);
-
-    // const record = await getTimeTxSubmit.(deployClient);
-    // const hederaCurrentTime = record.contractFunctionResult.getInt64(0);
-    // console.log(`hedera current time ${hederaCurrentTime}`);
 
     const cancelAuctionParams = new ContractFunctionParameters()
       .addAddress(nftAddress)
@@ -226,6 +236,14 @@ describe("TEST AUCTION SMART CONTRACT", async () => {
       .addInt64(startTime)
       .addInt64(endTime);
 
+    await approveNFT(
+      nftAddress,
+      serialNFT.toNumber(),
+      config.ACCOUNTS.DEPLOYER.ID,
+      SmartContractID.RLF_AUCTION,
+      deployClient
+    );
+
     const callReceipt = await callContract(
       SmartContractID.RLF_AUCTION,
       txConfigure.MAX_GAS,
@@ -244,6 +262,15 @@ describe("TEST AUCTION SMART CONTRACT", async () => {
       .addAddress(nftAddress)
       .addInt64(serialNFT)
       .addInt64(startPrice);
+
+    await approveToken(
+      tokenAddress,
+      config.ACCOUNTS.USER.ID,
+      SmartContractID.RLF_AUCTION,
+      startPrice.toNumber(),
+      userClient
+    );
+
     const callReceipt = await callContract(
       SmartContractID.RLF_AUCTION,
       txConfigure.MAX_GAS,

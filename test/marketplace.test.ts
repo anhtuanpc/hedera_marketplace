@@ -45,13 +45,12 @@ describe("TEST MARKETPLACE SMART CONTRACT", () => {
     .addString(TOKEN_SYMBOL)
     .addInt64(INITIAL_SUPPLY)
     .addInt32(DECIMAL)
-    .addInt64(AUTO_RENEWABLE)
-    .addAddress(deployerAddress);
+    .addInt64(AUTO_RENEWABLE);
+
   const deployNFTParams = new ContractFunctionParameters()
     .addString(NFT_NAME)
     .addString(NFT_SYMBOL)
-    .addInt64(AUTO_RENEWABLE)
-    .addAddress(deployerAddress);
+    .addInt64(AUTO_RENEWABLE);
 
   beforeEach(() => {
     deployClient = createClient(
@@ -284,7 +283,7 @@ describe("TEST MARKETPLACE SMART CONTRACT", () => {
     expect(status).to.equal("SUCCESS");
   });
 
-  it.skip("cancel offer and return for all user", async () => {
+  it("cancel offer and return for all user", async () => {
     const serialNFT = new BigNumber(2);
     const price = new BigNumber(15000000);
     const offerPrice = new BigNumber(1000000);
@@ -373,7 +372,7 @@ describe("TEST MARKETPLACE SMART CONTRACT", () => {
     expect(status).to.equal("SUCCESS");
   });
 
-  it.skip("put nft off and one of user cancel offer, return all fund", async () => {
+  it("put nft off and one of user cancel offer, return all fund", async () => {
     const serialNFT = new BigNumber(2);
     const price = new BigNumber(15000000);
     const offerPrice = new BigNumber(1000000);
@@ -463,24 +462,24 @@ describe("TEST MARKETPLACE SMART CONTRACT", () => {
     expect(status).to.equal("SUCCESS");
   });
 
-  it.skip("putNftOffMarketplace() success", async () => {
-    const serialNFT = new BigNumber(1);
-    const putNftOffParams = new ContractFunctionParameters()
-      .addAddress(nftAddress)
-      .addInt64(serialNFT);
-    const callReceipt = await callContract(
-      SmartContractID.RLF_MARKETPLACE,
-      txConfigure.MAX_GAS,
-      "putNftOffMarketplace",
-      putNftOffParams,
-      deployClient
-    );
+  // it("putNftOffMarketplace() success", async () => {
+  //   const serialNFT = new BigNumber(1);
+  //   const putNftOffParams = new ContractFunctionParameters()
+  //     .addAddress(nftAddress)
+  //     .addInt64(serialNFT);
+  //   const callReceipt = await callContract(
+  //     SmartContractID.RLF_MARKETPLACE,
+  //     txConfigure.MAX_GAS,
+  //     "putNftOffMarketplace",
+  //     putNftOffParams,
+  //     deployClient
+  //   );
 
-    const status = callReceipt.status.toString();
-    expect(status).to.equal("SUCCESS");
-  });
+  //   const status = callReceipt.status.toString();
+  //   expect(status).to.equal("SUCCESS");
+  // });
 
-  it.skip("put on and buy() success", async () => {
+  it("put on and buy() success", async () => {
     const serialNFT = new BigNumber(1);
     const price = new BigNumber(10000000);
     await approveNFT(
@@ -530,7 +529,7 @@ describe("TEST MARKETPLACE SMART CONTRACT", () => {
     expect(status).to.equal("SUCCESS");
   });
 
-  it.skip("push on nft and makeOffer() success", async () => {
+  it("push on nft and makeOffer() success", async () => {
     const serialNFT = new BigNumber(1);
     const initialPrice = new BigNumber(10000000000);
     const offerPrice = new BigNumber(1000000);
@@ -581,7 +580,7 @@ describe("TEST MARKETPLACE SMART CONTRACT", () => {
     expect(status).to.equal("SUCCESS");
   });
 
-  it.skip("cancelOffer() success and create other offer", async () => {
+  it("cancelOffer() success and create other offer", async () => {
     const serialNFT = new BigNumber(1);
     const cancelOfferParams = new ContractFunctionParameters()
       .addAddress(nftAddress)
@@ -620,7 +619,7 @@ describe("TEST MARKETPLACE SMART CONTRACT", () => {
     expect(status).to.equal("SUCCESS");
   });
 
-  it.skip("create higher offer and re-create lower offer at the same nft", async () => {
+  it("create higher offer and re-create lower offer at the same nft", async () => {
     const serialNFT = new BigNumber(1);
 
     const additionalOfferPrice = new BigNumber(1000000);
@@ -665,7 +664,7 @@ describe("TEST MARKETPLACE SMART CONTRACT", () => {
     expect(status).to.equal("SUCCESS");
   });
 
-  it.skip("acceptOfferNFT() success", async () => {
+  it("acceptOfferNFT() success", async () => {
     const serialNFT = new BigNumber(1);
     const acceptOfferParams = new ContractFunctionParameters()
       .addAddress(nftAddress)

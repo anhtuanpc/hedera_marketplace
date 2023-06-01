@@ -28,10 +28,10 @@ const userClient = createClient(
 const txConfigure = config.TRANSACTION_CONFIGURES;
 
 async function main(): Promise<void> {
-  await deployToken();
+  // await deployToken();
   // await deployNFT();
-  // await deployMarketplace();
-  // await deployAuction();
+  await deployMarketplace();
+  await deployAuction();
 }
 
 async function deployToken(): Promise<void> {
