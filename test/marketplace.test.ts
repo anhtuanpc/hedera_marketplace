@@ -480,7 +480,7 @@ describe("TEST MARKETPLACE SMART CONTRACT", () => {
   // });
 
   it("put on and buy() success", async () => {
-    const serialNFT = new BigNumber(1);
+    const serialNFT = new BigNumber(2);
     const price = new BigNumber(10000000);
     await approveNFT(
       nftAddress,
@@ -530,7 +530,7 @@ describe("TEST MARKETPLACE SMART CONTRACT", () => {
   });
 
   it("push on nft and makeOffer() success", async () => {
-    const serialNFT = new BigNumber(1);
+    const serialNFT = new BigNumber(2);
     const initialPrice = new BigNumber(10000000000);
     const offerPrice = new BigNumber(1000000);
 
@@ -581,7 +581,7 @@ describe("TEST MARKETPLACE SMART CONTRACT", () => {
   });
 
   it("cancelOffer() success and create other offer", async () => {
-    const serialNFT = new BigNumber(1);
+    const serialNFT = new BigNumber(2);
     const cancelOfferParams = new ContractFunctionParameters()
       .addAddress(nftAddress)
       .addInt64(serialNFT);
@@ -620,7 +620,7 @@ describe("TEST MARKETPLACE SMART CONTRACT", () => {
   });
 
   it("create higher offer and re-create lower offer at the same nft", async () => {
-    const serialNFT = new BigNumber(1);
+    const serialNFT = new BigNumber(2);
 
     const additionalOfferPrice = new BigNumber(1000000);
     const higherOfferPrice = new BigNumber(3000000);
@@ -665,7 +665,7 @@ describe("TEST MARKETPLACE SMART CONTRACT", () => {
   });
 
   it("acceptOfferNFT() success", async () => {
-    const serialNFT = new BigNumber(1);
+    const serialNFT = new BigNumber(2);
     const acceptOfferParams = new ContractFunctionParameters()
       .addAddress(nftAddress)
       .addInt64(serialNFT)
